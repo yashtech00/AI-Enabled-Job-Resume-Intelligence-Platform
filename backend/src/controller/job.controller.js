@@ -1,4 +1,5 @@
 import Job from "../models/job.models.js";
+import { jobSchema } from "../validation/job.validation.js";
 
 export const createJob = async (req, res) => {
   try {
@@ -57,3 +58,4 @@ export const getJobById = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+

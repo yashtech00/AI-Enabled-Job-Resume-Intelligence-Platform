@@ -1,24 +1,48 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const JobSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    description: {
-      type: String,
-      required: true,
-    },
-
-    extractedSkills: {
-      type: [String],
-      default: [],
-    },
+const jobSchema = new mongoose.Schema({
+  jobTitle: {
+    type: String,
+    required: true,
+    trim: true,
+    index: true
   },
-  { timestamps: true }
-);
+  jobDescription: {
+    type: String,
+    required: true
+  },
+  extractedSkills: [{
+    type: String,
+    trim: true
+  }],
+  company: {
+    type: String,
+    trim: true
+  },
+  location: {
+    type: String,
+    trim: true
+  },
+  experienceLevel: {
+    type: String,
+    enum: ['Entry', 'Mid', 'Senior', 'Lead'],
+    default: 'Mid'
+  },
+  scrapedFrom: {
+    type: String,
+    trim: true
+  },
+  sourceUrl: String,
+  isActive: {
+    type: Boolean,
+    default: true
+  }
+}, {
+  timestamps: true
+});
 
-export default mongoose.model("Job", JobSchema);
+// Indexes
+jobSchema.index({ jobTitle: 'text', jobDescription: 'text' });
+jobSchema.index({ createdAt: -1 });
+
+export default mongoose.model('Job', jobSchema);

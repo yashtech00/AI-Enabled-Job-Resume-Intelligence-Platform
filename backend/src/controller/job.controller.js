@@ -69,6 +69,7 @@ export const getAllJobs = async (req, res) => {
       data: jobs,
     });
   } catch (error) {
+     console.error(error,"get all job error");
     return res.status(500).json({ message: error.message });
   }
 };

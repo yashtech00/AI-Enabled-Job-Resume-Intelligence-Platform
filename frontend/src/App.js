@@ -2,18 +2,18 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Pages
-import Dashboard from "../pages/Dashboard/dashboard";
-import JobList from "../pages/Jobs/jobList";
-import CreateJob from "../pages/Jobs/createJob";
-import ResumeList from "../pages/Resumes/resumeList";
-import UploadResume from "../pages/Resumes/uploadResume";
-import ResumeChat from "../pages/Chat/resumeChat";
-import JobDetails from "../pages/Jobs/jobDetails";
-import MatchResult from "../pages/Matching/matchResult";
-import NotFound from "../pages/NotFound";
+import Dashboard from "./pages/Dashboard/dashboard";
+import JobList from "./pages/Jobs/jobList";
+import CreateJob from "./pages/Jobs/createJob";
+import ResumeList from "./pages/Resumes/ResumeList";
+import UploadResume from "./pages/Resumes/Uploadresume";
+import ResumeChat from "./pages/Chat/ResumeChat";
+import JobDetails from "./pages/Jobs/jobDetails";
+import MatchResult from "./pages/Matching/MatchResult";
+import NotFound from "./pages/NotFound";
 
 // Layout (optional but recommended)
-import Layout from "../components/layout/Layout";
+import Layout from "./components/layout/Layout";
 
 function App() {
   return (

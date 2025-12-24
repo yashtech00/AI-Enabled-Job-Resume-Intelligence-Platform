@@ -1,10 +1,11 @@
 import express from 'express';
 import dotenv from "dotenv"
 dotenv.config();
-import jobRouter from './src/routes/job.routes';
-import matchRouter from './src/routes/match.routes';
-import chatRouter from './src/routes/chat.routes';
-import resumeRouter from './src/routes/resume.routes';
+import cors from "cors"
+import jobRouter from './src/routes/job.routes.js';
+import matchRouter from './src/routes/match.routes.js';
+import chatRouter from './src/routes/chat.routes.js';
+import resumeRouter from './src/routes/resume.routes.js';
 
 
 const app = express();

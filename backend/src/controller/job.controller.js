@@ -1,3 +1,4 @@
+import { success } from "zod";
 import Job from "../models/job.models.js";
 import { jobSchema } from "../validation/job.validation.js";
 
@@ -28,13 +29,43 @@ export const createJob = async (req, res) => {
   }
 };
 
+export const scrapeJobs = async (req, res) => {
+  try {
+    const { url } = req.body;
+
+    const jobs = await scrapeJobsFromUrl(url);
+
+    return res.status(200).json({
+      message: "Jobs scraped successfully",
+      data: jobs,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
 
 export const getAllJobs = async (req, res) => {
   try {
-    const jobs = await Job.find().sort({ createdAt: -1 });
+    const pages = parseInt(req.query.pages) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const skip = (pages - 1) * limit;
+    const totalJobs = await Job.countDocuments();
+
+    const jobs = await Job.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     return res.status(200).json({
-      count: jobs.length,
+      success: true,
+      message: "Jobs fetched successfully",
+      pagination: {
+        totalItems: totalJobs,
+        totalPages: Math.ceil(totalJobs / limit),
+        currentPage: pages,
+        pageSize: limit,
+      },
       data: jobs,
     });
   } catch (error) {

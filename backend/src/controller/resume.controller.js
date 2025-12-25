@@ -17,7 +17,7 @@ export const uploadResume = async (req, res) => {
 
     const filePath = req.file.path;
 
-    // 1️⃣ Parse PDF
+    //  Parse PDF
     const text = await extractTextFromPDF(filePath);
 
     if (!text || text.trim().length === 0) {
@@ -27,7 +27,7 @@ export const uploadResume = async (req, res) => {
       });
     }
 
-    // 2️⃣ Extract skills
+    // Extract skills
     let skills = [];
     try {
       skills = await extractSkills(text);
@@ -35,7 +35,7 @@ export const uploadResume = async (req, res) => {
       console.error("Skill extraction failed, continuing without skills:", e);
     }
 
-    // 3️⃣ Extract candidate info
+    // Extract candidate info
     const basicInfo = await extractCandidateInfoBasic(text);
     let aiInfo = null;
     try {
@@ -53,7 +53,7 @@ export const uploadResume = async (req, res) => {
       summary: aiInfo?.summary,
     };
 
-    // 4️⃣ Generate embedding
+    //    Generate embedding
     let embedding = [];
     try {
       embedding = await generateEmbedding(text);
@@ -61,7 +61,7 @@ export const uploadResume = async (req, res) => {
       console.error("Embedding generation failed, continuing without embedding:", e);
     }
 
-    // 5️⃣ Save to DB
+    // Save to DB
     const resume = await Resume.create({
       candidateName: info.name || "Unknown",
       email: info.email,
@@ -84,7 +84,7 @@ export const uploadResume = async (req, res) => {
   } catch (error) {
     console.error("Upload error:", error);
 
-    // cleanup uploaded file if something fails
+
     if (req.file?.path) {
       await fs.unlink(req.file.path).catch(console.error);
     }

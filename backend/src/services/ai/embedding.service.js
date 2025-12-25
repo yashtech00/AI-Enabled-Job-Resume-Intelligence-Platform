@@ -1,11 +1,7 @@
-// src/services/embeddingService.js
+
 import { embeddings } from "../../config/langchain.js";
 
-/**
- * Generate embedding vector for text using HuggingFace (FREE)
- * @param {string} text - Text to embed
- * @returns {Promise<number[]>} - Embedding vector (384 dimensions)
- */
+
 export const generateEmbedding = async (text) => {
     try {
         if (!text || text.trim().length === 0) {
@@ -34,9 +30,6 @@ export const generateEmbedding = async (text) => {
     }
 };
 
-/**
- * Generate embeddings for multiple texts
- */
 export const generateBatchEmbeddings = async (texts) => {
     try {
         if (!texts || texts.length === 0) {
@@ -63,9 +56,6 @@ export const generateBatchEmbeddings = async (texts) => {
     }
 };
 
-/**
- * Calculate cosine similarity between two vectors
- */
 export const calculateCosineSimilarity = (vec1, vec2) => {
     try {
         if (vec1.length !== vec2.length) {

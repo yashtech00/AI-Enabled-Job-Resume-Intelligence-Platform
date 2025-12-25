@@ -1,17 +1,9 @@
-// src/controllers/chatController.js
-
 import ResumeModel from "../models/Resume.model.js";
 import ConversationModel from "../models/Chat.model.js";
-import { performRAG, splitTextIntoChunks, createVectorStore, similaritySearch } from "../services/ai/rag.service.js";
-import { formatConversationHistory, buildMemoryContext, extractTopics } from "../services/ai/memory.service.js";
-import { chatLLM, embeddings } from "../config/langchain.js";
+import { performRAG } from "../services/ai/rag.service.js";
+import { formatConversationHistory, buildMemoryContext } from "../services/ai/memory.service.js";
 
 
-/**
- * @route   POST /api/chat/start-conversation
- * @desc    Start a new conversation with a resume
- * @body    { resumeId, userId }
- */
 export const startConversation = async (req, res) => {
     try {
         const { resumeId, userId = 'demo-user' } = req.body;
@@ -91,11 +83,6 @@ export const startConversation = async (req, res) => {
 };
 
 
-/**
- * @route   POST /api/chat/send-message
- * @desc    Send a message and get AI response using RAG
- * @body    { conversationId, message }
- */
 export const sendMessage = async (req, res) => {
     try {
         const { conversationId, message } = req.body;
@@ -134,14 +121,10 @@ export const sendMessage = async (req, res) => {
             });
         }
 
-        // ============================================
-        // STEP 1: Format conversation history using memoryService
-        // ============================================
+     
         const conversationHistory = formatConversationHistory(conversation.messages, 5);
 
-        // ============================================
-        // STEP 2: Perform RAG using ragService
-        // ============================================
+     
         const context = {
             conversationHistory: conversationHistory,
             candidateName: resume.candidateName,
@@ -155,9 +138,6 @@ export const sendMessage = async (req, res) => {
             context
         );
 
-        // ============================================
-        // STEP 3: Update memory context using memoryService
-        // ============================================
         const updatedMemoryContext = buildMemoryContext(
             { ...conversation, messages: [...conversation.messages, { role: 'user', content: message }] },
             resume
@@ -167,9 +147,7 @@ export const sendMessage = async (req, res) => {
         updatedMemoryContext.lastQuestion = message;
         updatedMemoryContext.lastResponse = aiResponse;
 
-        // ============================================
-        // STEP 4: Save messages in conversation
-        // ============================================
+       
         conversation.messages.push({
             role: 'user',
             content: message,
@@ -207,10 +185,6 @@ export const sendMessage = async (req, res) => {
 };
 
 
-/**
- * @route   GET /api/chat/get-conversation/:conversationId
- * @desc    Get conversation history
- */
 export const getConversation = async (req, res) => {
     try {
         const { conversationId } = req.params;
@@ -274,10 +248,7 @@ export const getConversation = async (req, res) => {
 };
 
 
-/**
- * @route   DELETE /api/chat/delete-conversation/:conversationId
- * @desc    Delete a conversation
- */
+
 export const deleteConversation = async (req, res) => {
     try {
         const { conversationId } = req.params;
@@ -319,10 +290,6 @@ export const deleteConversation = async (req, res) => {
 };
 
 
-/**
- * @route   GET /api/chat/conversations/user/:userId
- * @desc    Get all conversations for a user
- */
 export const getUserConversations = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -374,10 +341,6 @@ export const getUserConversations = async (req, res) => {
 };
 
 
-/**
- * @route   POST /api/chat/clear/:conversationId
- * @desc    Clear conversation messages but keep session
- */
 export const clearConversation = async (req, res) => {
     try {
         const { conversationId } = req.params;
@@ -423,57 +386,3 @@ export const clearConversation = async (req, res) => {
     }
 };
 
-
-/**
- * @route   POST /api/chat/quick-ask
- * @desc    Quick question without creating persistent conversation
- */
-export const quickAsk = async (req, res) => {
-    try {
-        const { resumeId, question } = req.body;
-
-        if (!resumeId || !question) {
-            return res.status(400).json({
-                success: false,
-                message: "resumeId and question are required"
-            });
-        }
-
-        const resume = await ResumeModel.findById(resumeId);
-
-        if (!resume) {
-            return res.status(404).json({
-                success: false,
-                message: "Resume not found"
-            });
-        }
-
-        // Perform RAG without conversation history
-        const answer = await performRAG(
-            resume.extractedText,
-            question,
-            {
-                candidateName: resume.candidateName,
-                totalYears: resume.experience?.totalYears || 0,
-                skills: resume.extractedSkills?.join(", ") || "Not specified",
-                conversationHistory: "No previous conversation."
-            }
-        );
-
-        return res.status(200).json({
-            success: true,
-            data: {
-                question: question,
-                answer: answer,
-                candidateName: resume.candidateName
-            }
-        });
-
-    } catch (error) {
-        console.error('Quick ask error:', error);
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-};

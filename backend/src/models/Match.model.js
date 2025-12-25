@@ -35,7 +35,6 @@ const matchSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Compound indexes
 matchSchema.index({ jobId: 1, rankScore: -1 });
 matchSchema.index({ jobId: 1, resumeId: 1 }, { unique: true });
 

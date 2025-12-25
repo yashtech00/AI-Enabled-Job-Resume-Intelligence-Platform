@@ -1,13 +1,9 @@
-// src/services/skillExtractor.js (or your path)
+
 import { skillExtractionLLM } from "../../config/langchain.js";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
-/**
- * Extract skills from text using Groq AI
- * @param {string} text - Resume or job description text
- * @returns {Promise<string[]>} - Array of extracted skills
- */
+
 export const extractSkills = async (text) => {
     try {
         if (!text || text.trim().length === 0) {
@@ -81,9 +77,7 @@ Skills (comma-separated only):
     }
 };
 
-/**
- * Fallback skill extraction using keyword matching
- */
+
 const extractSkillsFallback = (text) => {
     console.log("⚠️ Using fallback skill extraction");
     
@@ -125,9 +119,7 @@ const extractSkillsFallback = (text) => {
     return found.slice(0, 30);
 };
 
-/**
- * Extract candidate information from resume
- */
+
 export const extractCandidateInfo = async (resumeText) => {
     try {
         const limitedText = resumeText.substring(0, 3000);
@@ -203,9 +195,6 @@ JSON:
     }
 };
 
-/**
- * Standardize skill names
- */
 export const standardizeSkills = async (skills) => {
     try {
         if (!skills || skills.length === 0) {

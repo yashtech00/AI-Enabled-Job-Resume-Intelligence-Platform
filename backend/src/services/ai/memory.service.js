@@ -1,11 +1,4 @@
-// src/services/memoryService.js
 
-/**
- * Format conversation history for prompts
- * @param {Array} messages - Array of message objects
- * @param {number} lastN - Number of recent messages to include
- * @returns {string} - Formatted conversation history
- */
 export const formatConversationHistory = (messages, lastN = 5) => {
     try {
         if (!messages || messages.length === 0) {
@@ -26,11 +19,6 @@ export const formatConversationHistory = (messages, lastN = 5) => {
     }
 };
 
-/**
- * Extract topics from conversation
- * @param {Array} messages - Array of message objects
- * @returns {string[]} - Array of topics
- */
 export const extractTopics = (messages) => {
     try {
         const topics = new Set();
@@ -63,12 +51,7 @@ export const extractTopics = (messages) => {
     }
 };
 
-/**
- * Build memory context object
- * @param {Object} conversation - Conversation object
- * @param {Object} resume - Resume object
- * @returns {Object} - Memory context
- */
+
 export const buildMemoryContext = (conversation, resume) => {
     try {
         const topics = extractTopics(conversation.messages || []);
@@ -90,11 +73,7 @@ export const buildMemoryContext = (conversation, resume) => {
     }
 };
 
-/**
- * Generate conversation summary
- * @param {Array} messages - Array of message objects
- * @returns {string} - Conversation summary
- */
+
 export const generateConversationSummary = (messages) => {
     try {
         if (!messages || messages.length === 0) {
@@ -122,12 +101,7 @@ export const generateConversationSummary = (messages) => {
     }
 };
 
-/**
- * Check if topic was discussed
- * @param {Object} memoryContext - Memory context object
- * @param {string} topic - Topic to check
- * @returns {boolean} - True if topic was discussed
- */
+
 export const wasTopicDiscussed = (memoryContext, topic) => {
     try {
         if (!memoryContext || !memoryContext.discussedTopics) {

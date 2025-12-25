@@ -1,4 +1,4 @@
-// src/services/ragService.js
+
 import { chatLLM, embeddings } from "../../config/langchain.js";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
@@ -7,9 +7,7 @@ import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
 
 import { TokenTextSplitter } from "@langchain/textsplitters";
 
-/**
- * Split text into chunks for RAG (Token-based)
- */
+
 export const splitTextIntoChunks = async (text, options = {}) => {
   try {
     const splitter = new TokenTextSplitter({
@@ -29,12 +27,6 @@ export const splitTextIntoChunks = async (text, options = {}) => {
 };
 
 
-/**
- * Create in-memory vector store from text chunks
- * @param {string[]} chunks - Text chunks
- * @param {Object[]} metadata - Metadata for each chunk
- * @returns {Promise<MemoryVectorStore>} - Vector store
- */
 export const createVectorStore = async (chunks, metadata = null) => {
     try {
         const metadataArray = metadata || chunks.map((_, i) => ({ 
@@ -58,13 +50,7 @@ export const createVectorStore = async (chunks, metadata = null) => {
     }
 };
 
-/**
- * Perform similarity search on vector store
- * @param {MemoryVectorStore} vectorStore - Vector store
- * @param {string} query - Search query
- * @param {number} k - Number of results
- * @returns {Promise<Array>} - Similar documents
- */
+
 export const similaritySearch = async (vectorStore, query, k = 3) => {
     try {
         const results = await vectorStore.similaritySearch(query, k);
@@ -79,28 +65,21 @@ export const similaritySearch = async (vectorStore, query, k = 3) => {
     }
 };
 
-/**
- * Create RAG chain for Q&A
- * @param {string} resumeText - Full resume text
- * @param {string} question - User question
- * @param {Object} context - Additional context (conversation history, etc.)
- * @returns {Promise<string>} - AI response
- */
 export const performRAG = async (resumeText, question, context = {}) => {
     try {
-        // Step 1: Split resume into chunks
+        // Split resume into chunks
         const chunks = await splitTextIntoChunks(resumeText);
 
-        // Step 2: Create vector store
+        // Create vector store
         const vectorStore = await createVectorStore(chunks);
 
-        // Step 3: Find relevant chunks
+        //  Find relevant chunks
         const relevantDocs = await similaritySearch(vectorStore, question, 3);
         const retrievedContext = relevantDocs
             .map(doc => doc.pageContent)
             .join("\n\n");
 
-        // Step 4: Build prompt with context
+        //  Build prompt with context
         const promptTemplate = PromptTemplate.fromTemplate(`
 You are a helpful HR assistant analyzing a candidate's resume.
 
@@ -152,13 +131,7 @@ Answer:
     }
 };
 
-/**
- * Batch RAG for multiple questions
- * @param {string} resumeText - Full resume text
- * @param {string[]} questions - Array of questions
- * @param {Object} context - Additional context
- * @returns {Promise<Array>} - Array of Q&A pairs
- */
+
 export const batchRAG = async (resumeText, questions, context = {}) => {
     try {
         // Create vector store once for all questions
@@ -196,7 +169,7 @@ Answer concisely:
             })
         );
 
-        console.log(`✅ Batch RAG completed for ${questions.length} questions`);
+        console.log(` Batch RAG completed for ${questions.length} questions`);
         
         return results;
 

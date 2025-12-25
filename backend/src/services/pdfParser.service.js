@@ -3,7 +3,7 @@ import PDFParser from "pdf2json";
 
 export const parsePDF = async (filePath) => {
   try {
-    // 1. Read file into buffer
+    //  Read file into buffer
     const buffer = await fs.readFile(filePath);
 
     const pdfParser = new PDFParser();
@@ -85,11 +85,7 @@ export const parsePDF = async (filePath) => {
   }
 };
 
-/**
- * Clean extracted text from PDF
- * @param {string} text - Raw text from PDF
- * @returns {string} - Cleaned text
- */
+
 export const cleanPDFText = (text) => {
     try {
         let cleaned = text;
@@ -113,11 +109,6 @@ export const cleanPDFText = (text) => {
     }
 };
 
-/**
- * Extract text from PDF with cleaning
- * @param {string} filePath - Path to PDF file
- * @returns {Promise<string>} - Cleaned extracted text
- */
 export const extractTextFromPDF = async (filePath) => {
     try {
         const pdfData = await parsePDF(filePath);

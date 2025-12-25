@@ -27,11 +27,6 @@ const getJobSkills = async (job) => {
     }
 };
 
-/**
- * @route   POST /api/match/analyze
- * @desc    Analyze single resume against a job
- * @body    { resumeId, jobId }
- */
 export const analyzeResume = async (req, res) => {
     try {
         const { resumeId, jobId } = req.body;
@@ -156,11 +151,6 @@ export const analyzeResume = async (req, res) => {
 };
 
 
-/**
- * @route   GET /api/match/job/:jobId
- * @desc    Get all matches for a specific job
- * @query   { page, limit, minMatch, sortBy }
- */
 export const getMatchesByJob = async (req, res) => {
     try {
         const { jobId } = req.params;
@@ -231,11 +221,6 @@ export const getMatchesByJob = async (req, res) => {
 };
 
 
-/**
- * @route   POST /api/match/rank
- * @desc    Rank all resumes for a job (Top 10 or specified limit)
- * @body    { jobId, limit }
- */
 export const rankResumesForJob = async (req, res) => {
     try {
         const { jobId, limit = 10 } = req.body;
@@ -340,8 +325,6 @@ export const rankResumesForJob = async (req, res) => {
             .sort({ rankScore: -1 }) // Highest rank first
             .limit(parseInt(limit));
 
-        // If a resume was deleted, populate('resumeId') will return null.
-        // Filter out these orphaned matches to avoid crashing the response.
         const validTopCandidates = topCandidates.filter((m) => m?.resumeId);
 
         // Format response
@@ -382,10 +365,6 @@ export const rankResumesForJob = async (req, res) => {
 };
 
 
-/**
- * @route   GET /api/match/:id
- * @desc    Get specific match details
- */
 export const getMatchById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -416,10 +395,6 @@ export const getMatchById = async (req, res) => {
 };
 
 
-/**
- * @route   DELETE /api/match/:id
- * @desc    Delete a specific match
- */
 export const deleteMatch = async (req, res) => {
     try {
         const { id } = req.params;

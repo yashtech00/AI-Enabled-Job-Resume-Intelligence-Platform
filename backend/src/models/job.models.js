@@ -41,7 +41,6 @@ const jobSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexes
 jobSchema.index({ jobTitle: 'text', jobDescription: 'text' });
 jobSchema.index({ createdAt: -1 });
 

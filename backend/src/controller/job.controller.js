@@ -1,4 +1,3 @@
-import { success } from "zod";
 import Job from "../models/job.models.js";
 import { jobSchema } from "../validation/job.validation.js";
 

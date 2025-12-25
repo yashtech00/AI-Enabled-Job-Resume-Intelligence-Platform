@@ -4,7 +4,12 @@ import { jobSchema } from "../validation/job.validation.js";
 
 export const createJob = async (req, res) => {
   try {
-    const validation = jobSchema.safeParse(req.body);
+    const payload = {
+      jobTitle: req.body?.jobTitle ?? req.body?.title,
+      jobDescription: req.body?.jobDescription ?? req.body?.description,
+    };
+
+    const validation = jobSchema.safeParse(payload);
 
     if (!validation.success) {
       return res.status(400).json({
@@ -13,11 +18,11 @@ export const createJob = async (req, res) => {
       });
     }
 
-    const { title, description } = validation.data;
+    const { jobTitle, jobDescription } = validation.data;
 
     const job = await Job.create({
-      title,
-      description,
+      jobTitle,
+      jobDescription,
     });
 
     return res.status(201).json({

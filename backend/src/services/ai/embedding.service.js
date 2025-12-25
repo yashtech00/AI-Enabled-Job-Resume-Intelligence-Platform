@@ -1,43 +1,71 @@
+// src/services/embeddingService.js
 import { embeddings } from "../../config/langchain.js";
 
+/**
+ * Generate embedding vector for text using HuggingFace (FREE)
+ * @param {string} text - Text to embed
+ * @returns {Promise<number[]>} - Embedding vector (384 dimensions)
+ */
 export const generateEmbedding = async (text) => {
     try {
         if (!text || text.trim().length === 0) {
             throw new Error("Text cannot be empty for embedding generation");
         }
-        const cleanedText = text.replace(/\s+/g, ' ').trim();
 
+        // Clean and limit text
+        const cleanedText = text
+            .replace(/\s+/g, ' ')
+            .trim()
+            .substring(0, 5000); // HuggingFace limit
+
+        // Generate embedding
         const embedding = await embeddings.embedQuery(cleanedText);
-        console.log(`Generated embedding with ${embedding.length} dimensions`);
 
-        return embedding;
+        console.log(`✅ Generated embedding: ${embedding.length} dimensions`);
         
-    } catch (e) {
-        console.error('Embedding generation error:', error);
-        throw new Error(`Failed to generate embedding: ${error.message}`);
-    }
-}
+        return embedding;
 
+    } catch (error) {
+        console.error('❌ Embedding generation error:', error.message);
+        
+        // Return zero vector as fallback (384 dimensions for all-MiniLM-L6-v2)
+        console.log('⚠️ Returning zero vector fallback');
+        return new Array(384).fill(0);
+    }
+};
+
+/**
+ * Generate embeddings for multiple texts
+ */
 export const generateBatchEmbeddings = async (texts) => {
     try {
         if (!texts || texts.length === 0) {
             throw new Error("Texts array cannot be empty");
         }
 
-        const cleanedTexts = texts.map(text => text.replaces(/\s+/g, ' ').trim()
+        // Clean all texts
+        const cleanedTexts = texts.map(text => 
+            text.replace(/\s+/g, ' ').trim().substring(0, 5000)
         );
-        const embeddings = await embeddings.embedDocuments(cleanedTexts)
 
-        console.log(`✅ Generated ${embeddings.length} embeddings`);
+        // Generate embeddings
+        const embeddingVectors = await embeddings.embedDocuments(cleanedTexts);
+
+        console.log(`✅ Generated ${embeddingVectors.length} embeddings`);
         
-        return embeddings;
-    } catch (e) {
-        console.error('Batch embedding generation error:', error);
-        throw new Error(`Failed to generate batch embeddings: ${error.message}`);
+        return embeddingVectors;
+
+    } catch (error) {
+        console.error('❌ Batch embedding error:', error.message);
         
+        // Return zero vectors as fallback
+        return texts.map(() => new Array(384).fill(0));
     }
-} 
+};
 
+/**
+ * Calculate cosine similarity between two vectors
+ */
 export const calculateCosineSimilarity = (vec1, vec2) => {
     try {
         if (vec1.length !== vec2.length) {
@@ -48,41 +76,23 @@ export const calculateCosineSimilarity = (vec1, vec2) => {
         let mag1 = 0;
         let mag2 = 0;
 
-        for (let i = 0; i < vec1.length; i++){
-            dotProduct += vec1[i] + vec2[i];
-            mag1 += vec1[i] + vec1[i];
-            mag2 += vec1[i] + vec2[i];
+        for (let i = 0; i < vec1.length; i++) {
+            dotProduct += vec1[i] * vec2[i];
+            mag1 += vec1[i] * vec1[i];
+            mag2 += vec2[i] * vec2[i];
         }
+
         mag1 = Math.sqrt(mag1);
         mag2 = Math.sqrt(mag2);
 
         if (mag1 === 0 || mag2 === 0) {
             return 0;
         }
-        return dotProduct / (mag1 + mag2);
-    } catch (e) {
-        console.error('Cosine similarity calculation error:', error);
+
+        return dotProduct / (mag1 * mag2);
+
+    } catch (error) {
+        console.error('❌ Cosine similarity error:', error.message);
         return 0;
     }
-} 
-
-
-export const findSimilarTexts = async (queryText, documents, topK = 5) => {
-    try {
-        const queryEmbedding = await generateEmbedding(queryText);
-
-        const results = documents.map(doc => ({
-            ...doc,
-            similarity: calculateCosineSimilarity(queryEmbedding, doc.embedding)
-        }));
-
-        return results  
-            .sort((a, b) => b.similarity - a.similarity)
-            .slice(0, topK)
-
-    } catch (e) {
-        console.error('Find similar texts error:', error);
-        throw error;
-    }
-}
-
+};

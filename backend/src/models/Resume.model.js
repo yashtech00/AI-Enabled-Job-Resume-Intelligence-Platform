@@ -43,13 +43,12 @@ const resumeSchema = new mongoose.Schema({
   }],
   embedding: {
     type: [Number],
-    required: true
+    default: []
   },
   summary: String
 }, {
   timestamps: true
 });
-
 
 resumeSchema.index({ candidateName: 'text', extractedText: 'text' });
 

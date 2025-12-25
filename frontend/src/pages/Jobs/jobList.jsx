@@ -1,13 +1,28 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getAllJobs } from "../../api/job.api";
 
-export const jobsList = () => {
+export const JobsList = () => {
   const [jobList, setJobList] = useState([]);
+
+  const truncateWords = (text, maxWords = 25) => {
+    const value = (text ?? "").toString().trim();
+    if (!value) return "";
+    const words = value.split(/\s+/).filter(Boolean);
+    if (words.length <= maxWords) return value;
+    return `${words.slice(0, maxWords).join(" ")}...`;
+  };
 
   const handleJobList = async () => {
     const data = await getAllJobs();
-    setJobList(data || []);
+    const normalizedJobs = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.jobs)
+        ? data.jobs
+        : Array.isArray(data?.data)
+          ? data.data
+          : [];
+    setJobList(normalizedJobs);
   };
 
   useEffect(() => {
@@ -46,17 +61,30 @@ export const jobsList = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {jobList.map((job) => (
+              {(Array.isArray(jobList) ? jobList : []).map((job) => (
                 <tr key={job._id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">{job.title}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{job.description}</td>
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900">{job.jobTitle ?? job.title}</td>
+                  <td
+                    className="px-4 py-3 text-sm text-gray-600"
+                    title={(job.jobDescription ?? job.description) || ""}
+                  >
+                    {truncateWords(job.jobDescription ?? job.description, 25)}
+                  </td>
                   <td className="px-4 py-3 text-right">
-                    <Link
-                      to={`/jobs/${job._id}`}
-                      className="text-sm font-medium text-blue-600 hover:text-blue-700"
-                    >
-                      View
-                    </Link>
+                    <div className="flex justify-end gap-3">
+                      <Link
+                        to={`/jobs/${job._id}`}
+                        className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                      >
+                        View
+                      </Link>
+                      <Link
+                        to={`/matches/${job._id}`}
+                        className="text-sm font-medium text-gray-900 hover:text-gray-700"
+                      >
+                        Match
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -75,4 +103,4 @@ export const jobsList = () => {
   );
 };
 
-export default jobsList;
+export default JobsList;

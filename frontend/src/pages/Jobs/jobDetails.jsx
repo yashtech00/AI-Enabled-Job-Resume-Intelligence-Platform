@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getJobById } from "../../api/job.api";
 
-export const jobDetail = () => {
+export const JobDetail = () => {
   const { jobId } = useParams();
   const [jobDetails, setJobDetails] = useState(null);
 
   const handleJobDetails = async () => {
     const data = await getJobById(jobId);
+    console.log(data, "job detail");
     setJobDetails(data || null);
   };
 
@@ -15,7 +16,9 @@ export const jobDetail = () => {
     handleJobDetails();
   }, [jobId]);
 
-  const job = Array.isArray(jobDetails) ? jobDetails[0] : jobDetails;
+  const jobData = jobDetails?.data;
+  const job = Array.isArray(jobData) ? jobData?.[0] : jobData;
+  console.log(job, "job");
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8">
@@ -24,12 +27,20 @@ export const jobDetail = () => {
           <h1 className="text-2xl font-semibold text-gray-900">Job Details</h1>
           <p className="mt-1 text-sm text-gray-500">View the selected job posting.</p>
         </div>
-        <Link
-          to="/jobs"
-          className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-          Back
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            to={`/matches/${jobId}`}
+            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+          >
+            Match
+          </Link>
+          <Link
+            to="/jobs"
+            className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Back
+          </Link>
+        </div>
       </div>
 
       <div className="rounded-xl border border-gray-200 bg-white p-6">
@@ -43,11 +54,11 @@ export const jobDetail = () => {
             </div>
             <div>
               <div className="text-xs font-semibold uppercase tracking-wider text-gray-500">Title</div>
-              <div className="mt-1 text-sm font-medium text-gray-900">{job.title}</div>
+              <div className="mt-1 text-sm font-medium text-gray-900">{job.jobTitle ?? job.title}</div>
             </div>
             <div>
               <div className="text-xs font-semibold uppercase tracking-wider text-gray-500">Description</div>
-              <div className="mt-1 whitespace-pre-wrap text-sm text-gray-700">{job.description}</div>
+              <div className="mt-1 whitespace-pre-wrap text-sm text-gray-700">{job.jobDescription ?? job.description}</div>
             </div>
           </div>
         )}
@@ -56,4 +67,4 @@ export const jobDetail = () => {
   );
 };
 
-export default jobDetail;
+export default JobDetail;

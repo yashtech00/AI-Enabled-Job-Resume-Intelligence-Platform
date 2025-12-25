@@ -1,7 +1,9 @@
 import fs from 'fs/promises';   
+import path from 'path';
 import Resume from '../models/Resume.model.js';
-import { extractSkills } from '../services/ai/skillExtraction.service.js';
+import { extractCandidateInfo as extractCandidateInfoAI, extractSkills } from '../services/ai/skillExtraction.service.js';
 import { generateEmbedding } from '../services/ai/embedding.service.js';
+import { extractCandidateInfo as extractCandidateInfoBasic, extractTextFromPDF } from '../services/pdfParser.service.js';
 
 
 export const uploadResume = async (req, res) => {
@@ -18,14 +20,46 @@ export const uploadResume = async (req, res) => {
     // 1️⃣ Parse PDF
     const text = await extractTextFromPDF(filePath);
 
+    if (!text || text.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Could not extract any text from the uploaded PDF. If this is a scanned image PDF, please upload a text-based PDF.",
+      });
+    }
+
     // 2️⃣ Extract skills
-    const skills = await extractSkills(text);
+    let skills = [];
+    try {
+      skills = await extractSkills(text);
+    } catch (e) {
+      console.error("Skill extraction failed, continuing without skills:", e);
+    }
 
     // 3️⃣ Extract candidate info
-    const info = await extractCandidateInfo(text);
+    const basicInfo = await extractCandidateInfoBasic(text);
+    let aiInfo = null;
+    try {
+      aiInfo = await extractCandidateInfoAI(text);
+    } catch (e) {
+      aiInfo = null;
+    }
+
+    const info = {
+      name: aiInfo?.name || basicInfo?.name,
+      email: aiInfo?.email || basicInfo?.email,
+      phone: aiInfo?.phone || basicInfo?.phone,
+      experience: aiInfo?.experience || basicInfo?.experience,
+      education: aiInfo?.education || basicInfo?.education,
+      summary: aiInfo?.summary,
+    };
 
     // 4️⃣ Generate embedding
-    const embedding = await generateEmbedding(text);
+    let embedding = [];
+    try {
+      embedding = await generateEmbedding(text);
+    } catch (e) {
+      console.error("Embedding generation failed, continuing without embedding:", e);
+    }
 
     // 5️⃣ Save to DB
     const resume = await Resume.create({
@@ -33,10 +67,11 @@ export const uploadResume = async (req, res) => {
       email: info.email,
       phone: info.phone,
       experience: info.experience,
-      education: info.education,
+      education: Array.isArray(info.education) ? info.education : [],
       extractedSkills: skills,
       extractedText: text,
       embedding: embedding,
+      summary: info.summary,
       filePath: filePath,
       originalFileName: req.file.originalname,
     });
@@ -64,7 +99,8 @@ export const uploadResume = async (req, res) => {
 
 export const downloadResume = async (req, res) => {
   try {
-    const resume = await Resume.findById(req.params.id);
+    const { resumeId } = req.params;
+    const resume = await Resume.findById(resumeId);
     
     if (!resume) {
       return res.status(404).json({ 
@@ -73,7 +109,20 @@ export const downloadResume = async (req, res) => {
       });
     }
 
-    res.download(resume.filePath, resume.originalFileName);
+    const absolutePath = path.isAbsolute(resume.filePath)
+      ? resume.filePath
+      : path.resolve(process.cwd(), resume.filePath);
+
+    try {
+      await fs.access(absolutePath);
+    } catch (e) {
+      return res.status(404).json({
+        success: false,
+        message: 'Resume file not found on server'
+      });
+    }
+
+    res.download(absolutePath, resume.originalFileName);
     
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });

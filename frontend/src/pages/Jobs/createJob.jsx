@@ -11,7 +11,7 @@ export const CreateJob = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    await createJob({ title: jobTitle, description: jobDescription });
+    await createJob({ jobTitle, jobDescription });
     setLoading(false);
     navigate("/jobs");
   };

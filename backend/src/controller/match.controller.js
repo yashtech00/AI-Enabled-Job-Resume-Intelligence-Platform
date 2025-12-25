@@ -1,6 +1,31 @@
 import jobModels from "../models/job.models.js";
 import MatchModel from "../models/Match.model.js";
 import ResumeModel from "../models/Resume.model.js";
+import { extractSkills } from "../services/ai/skillExtraction.service.js";
+import { calculateCosineSimilarity, generateEmbedding } from "../services/ai/embedding.service.js";
+
+const normalizeSkills = (skills) => {
+    const list = Array.isArray(skills) ? skills : [];
+    const normalized = list
+        .map((s) => (s ?? "").toString().toLowerCase().trim())
+        .filter(Boolean);
+    return Array.from(new Set(normalized));
+};
+
+const getJobSkills = async (job) => {
+    const existing = normalizeSkills(job?.extractedSkills);
+    if (existing.length > 0) return existing;
+
+    const text = (job?.jobDescription ?? "").toString();
+    if (!text.trim()) return [];
+
+    try {
+        const extracted = await extractSkills(text);
+        return normalizeSkills(extracted);
+    } catch (e) {
+        return [];
+    }
+};
 
 /**
  * @route   POST /api/match/analyze
@@ -30,12 +55,16 @@ export const analyzeResume = async (req, res) => {
             });
         }
 
-        // Check if match already exists (avoid duplicates)
-        let existingMatch = await MatchModel.findOne({ resumeId, jobId });
+        const jobSkills = await getJobSkills(job);
+        let jobEmbedding = [];
+        try {
+            jobEmbedding = await generateEmbedding(job?.jobDescription || job?.jobTitle || "");
+        } catch (e) {
+            jobEmbedding = [];
+        }
 
         // Normalize skills to lowercase for better matching
-        const resumeSkills = resume.extractedSkills.map(s => s.toLowerCase().trim());
-        const jobSkills = job.extractedSkills.map(s => s.toLowerCase().trim());
+        const resumeSkills = normalizeSkills(resume.extractedSkills);
 
         // Calculate matched and missing skills
         const matchedSkills = resumeSkills.filter(skill => 
@@ -56,9 +85,16 @@ export const analyzeResume = async (req, res) => {
         const skillScore = matchPercentage;
 
         // 2. Semantic Score (how comprehensive the resume is)
-        const semanticScore = resumeSkills.length > 0 
-            ? (matchedSkills.length / resumeSkills.length) * 100 
-            : 0;
+        let semanticScore = 0;
+        try {
+            const resumeEmbedding = Array.isArray(resume?.embedding) ? resume.embedding : [];
+            if (jobEmbedding?.length && resumeEmbedding?.length && jobEmbedding.length === resumeEmbedding.length) {
+                const similarity = calculateCosineSimilarity(jobEmbedding, resumeEmbedding);
+                semanticScore = Math.max(0, Math.min(100, similarity * 100));
+            }
+        } catch (e) {
+            semanticScore = 0;
+        }
 
         // 3. Experience Score (compare years of experience)
         let experienceScore = 0;
@@ -89,39 +125,26 @@ export const analyzeResume = async (req, res) => {
         ).toFixed(2);
 
         // Update or create match
-        if (existingMatch) {
-            existingMatch.matchPercentage = parseFloat(matchPercentage.toFixed(2));
-            existingMatch.matchedSkills = matchedSkills;
-            existingMatch.missingSkills = missingSkills;
-            existingMatch.rankScore = parseFloat(rankScore);
-            existingMatch.semanticScore = parseFloat(semanticScore.toFixed(2));
-            existingMatch.experienceScore = parseFloat(experienceScore.toFixed(2));
-            
-            await existingMatch.save();
-            
-            return res.status(200).json({ 
-                success: true, 
-                message: "Match updated successfully", 
-                data: existingMatch 
-            });
-        } else {
-            const match = await MatchModel.create({
+        const match = await MatchModel.findOneAndUpdate(
+            { resumeId, jobId },
+            {
                 resumeId,
                 jobId,
                 matchPercentage: parseFloat(matchPercentage.toFixed(2)),
-                matchedSkills: matchedSkills,
-                missingSkills: missingSkills,
+                matchedSkills,
+                missingSkills,
                 rankScore: parseFloat(rankScore),
-                semanticScore: parseFloat(semanticScore.toFixed(2)),
+                semanticScore: parseFloat(Number(semanticScore).toFixed(2)),
                 experienceScore: parseFloat(experienceScore.toFixed(2))
-            });
+            },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        );
 
-            return res.status(201).json({ 
-                success: true, 
-                message: "Resume analyzed successfully", 
-                data: match 
-            });
-        }
+        return res.status(200).json({ 
+            success: true, 
+            message: "Match updated successfully", 
+            data: match 
+        });
 
     } catch (error) {
         console.error('Analyze match error:', error);
@@ -244,67 +267,66 @@ export const rankResumesForJob = async (req, res) => {
             });
         }
 
-        // Analyze each resume if not already matched
+        const jobSkills = await getJobSkills(job);
+        let jobEmbedding = [];
+        try {
+            jobEmbedding = await generateEmbedding(job?.jobDescription || job?.jobTitle || "");
+        } catch (e) {
+            jobEmbedding = [];
+        }
+
+        // Analyze each resume (always recompute + upsert so stale matches get corrected)
         const matchPromises = allResumes.map(async (resume) => {
-            // Check if match already exists
-            let match = await MatchModel.findOne({ 
-                resumeId: resume._id, 
-                jobId 
-            });
+            const resumeSkills = normalizeSkills(resume?.extractedSkills);
 
-            // If match doesn't exist, create it
-            if (!match) {
-                // Calculate match (same logic as analyzeMatch)
-                const resumeSkills = resume.extractedSkills.map(s => s.toLowerCase().trim());
-                const jobSkills = job.extractedSkills.map(s => s.toLowerCase().trim());
+            const matchedSkills = resumeSkills.filter((skill) => jobSkills.includes(skill));
+            const missingSkills = jobSkills.filter((skill) => !resumeSkills.includes(skill));
 
-                const matchedSkills = resumeSkills.filter(skill => 
-                    jobSkills.includes(skill)
-                );
-                
-                const missingSkills = jobSkills.filter(skill => 
-                    !resumeSkills.includes(skill)
-                );
+            const matchPercentage = jobSkills.length > 0 ? (matchedSkills.length / jobSkills.length) * 100 : 0;
+            const skillScore = matchPercentage;
 
-                const matchPercentage = jobSkills.length > 0 
-                    ? (matchedSkills.length / jobSkills.length) * 100 
-                    : 0;
-
-                const skillScore = matchPercentage;
-                const semanticScore = resumeSkills.length > 0 
-                    ? (matchedSkills.length / resumeSkills.length) * 100 
-                    : 0;
-
-                const resumeYears = resume.experience?.totalYears || 0;
-                const experienceLevelMap = {
-                    'Entry': 2, 'Mid': 5, 'Senior': 8, 'Lead': 10
-                };
-                const requiredYears = experienceLevelMap[job.experienceLevel] || 5;
-                
-                let experienceScore = 0;
-                if (resumeYears >= requiredYears) {
-                    experienceScore = 100;
-                } else if (resumeYears > 0) {
-                    experienceScore = (resumeYears / requiredYears) * 100;
+            let semanticScore = 0;
+            try {
+                const resumeEmbedding = Array.isArray(resume?.embedding) ? resume.embedding : [];
+                if (jobEmbedding?.length && resumeEmbedding?.length && jobEmbedding.length === resumeEmbedding.length) {
+                    const similarity = calculateCosineSimilarity(jobEmbedding, resumeEmbedding);
+                    semanticScore = Math.max(0, Math.min(100, similarity * 100));
                 }
+            } catch (e) {
+                semanticScore = 0;
+            }
 
-                const rankScore = (
-                    (skillScore * 0.5) + 
-                    (experienceScore * 0.3) + 
-                    (semanticScore * 0.2)
-                ).toFixed(2);
+            const resumeYears = resume.experience?.totalYears || 0;
+            const experienceLevelMap = { 'Entry': 2, 'Mid': 5, 'Senior': 8, 'Lead': 10 };
+            const requiredYears = experienceLevelMap[job.experienceLevel] || 5;
 
-                match = await MatchModel.create({
+            let experienceScore = 0;
+            if (resumeYears >= requiredYears) {
+                experienceScore = 100;
+            } else if (resumeYears > 0) {
+                experienceScore = (resumeYears / requiredYears) * 100;
+            }
+
+            const rankScore = (
+                (skillScore * 0.5) +
+                (experienceScore * 0.3) +
+                (semanticScore * 0.2)
+            ).toFixed(2);
+
+            const match = await MatchModel.findOneAndUpdate(
+                { resumeId: resume._id, jobId },
+                {
                     resumeId: resume._id,
                     jobId,
                     matchPercentage: parseFloat(matchPercentage.toFixed(2)),
                     matchedSkills,
                     missingSkills,
                     rankScore: parseFloat(rankScore),
-                    semanticScore: parseFloat(semanticScore.toFixed(2)),
+                    semanticScore: parseFloat(Number(semanticScore).toFixed(2)),
                     experienceScore: parseFloat(experienceScore.toFixed(2))
-                });
-            }
+                },
+                { new: true, upsert: true, setDefaultsOnInsert: true }
+            );
 
             return match;
         });
@@ -318,8 +340,12 @@ export const rankResumesForJob = async (req, res) => {
             .sort({ rankScore: -1 }) // Highest rank first
             .limit(parseInt(limit));
 
+        // If a resume was deleted, populate('resumeId') will return null.
+        // Filter out these orphaned matches to avoid crashing the response.
+        const validTopCandidates = topCandidates.filter((m) => m?.resumeId);
+
         // Format response
-        const rankedCandidates = topCandidates.map((match, index) => ({
+        const rankedCandidates = validTopCandidates.map((match, index) => ({
             rank: index + 1,
             resumeId: match.resumeId._id,
             candidateName: match.resumeId.candidateName,

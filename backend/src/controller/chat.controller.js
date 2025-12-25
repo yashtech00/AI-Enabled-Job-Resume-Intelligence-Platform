@@ -1,9 +1,11 @@
 // src/controllers/chatController.js
 
 import ResumeModel from "../models/Resume.model.js";
-import { performRAG, splitTextIntoChunks, createVectorStore, similaritySearch } from "../services/ai/ragService.js";
-import { formatConversationHistory, buildMemoryContext, extractTopics } from "../services/ai/memoryService.js";
+import ConversationModel from "../models/Chat.model.js";
+import { performRAG, splitTextIntoChunks, createVectorStore, similaritySearch } from "../services/ai/rag.service.js";
+import { formatConversationHistory, buildMemoryContext, extractTopics } from "../services/ai/memory.service.js";
 import { chatLLM, embeddings } from "../config/langchain.js";
+
 
 /**
  * @route   POST /api/chat/start-conversation
@@ -32,7 +34,7 @@ export const startConversation = async (req, res) => {
         }
 
         // Check if active conversation already exists
-        const existingConversation = await Conversation.findOne({
+        const existingConversation = await ConversationModel.findOne({
             resumeId,
             userId,
             isActive: true
@@ -125,6 +127,12 @@ export const sendMessage = async (req, res) => {
         }
 
         const resume = conversation.resumeId;
+        if (!resume) {
+            return res.status(404).json({
+                success: false,
+                message: "Resume not found for this conversation"
+            });
+        }
 
         // ============================================
         // STEP 1: Format conversation history using memoryService
@@ -226,16 +234,18 @@ export const getConversation = async (req, res) => {
             });
         }
 
+        const resume = conversation.resumeId;
+
         // Format response
         const formattedConversation = {
             conversationId: conversation._id,
             candidate: {
-                id: conversation.resumeId._id,
-                name: conversation.resumeId.candidateName,
-                email: conversation.resumeId.email,
-                phone: conversation.resumeId.phone,
-                skills: conversation.resumeId.extractedSkills,
-                experience: conversation.resumeId.experience
+                id: resume?._id || conversation?.memoryContext?.candidateId,
+                name: resume?.candidateName || conversation?.memoryContext?.candidateName,
+                email: resume?.email,
+                phone: resume?.phone,
+                skills: resume?.extractedSkills || conversation?.memoryContext?.skills || [],
+                experience: resume?.experience || { totalYears: conversation?.memoryContext?.totalYears || 0 }
             },
             messages: conversation.messages.map(msg => ({
                 role: msg.role,
@@ -328,18 +338,24 @@ export const getUserConversations = async (req, res) => {
 
         const total = await ConversationModel.countDocuments({ userId });
 
+        const formatted = conversations.map((conv) => {
+            const candidateName = conv?.resumeId?.candidateName || conv?.memoryContext?.candidateName;
+            const candidateEmail = conv?.resumeId?.email;
+            return {
+                conversationId: conv._id,
+                candidateName,
+                candidateEmail,
+                messageCount: conv.messages.length,
+                lastMessage: conv.messages[conv.messages.length - 1]?.content?.substring(0, 100),
+                updatedAt: conv.updatedAt,
+                isActive: conv.isActive
+            };
+        });
+
         return res.status(200).json({
             success: true,
             data: {
-                conversations: conversations.map(conv => ({
-                    conversationId: conv._id,
-                    candidateName: conv.resumeId.candidateName,
-                    candidateEmail: conv.resumeId.email,
-                    messageCount: conv.messages.length,
-                    lastMessage: conv.messages[conv.messages.length - 1]?.content?.substring(0, 100),
-                    updatedAt: conv.updatedAt,
-                    isActive: conv.isActive
-                })),
+                conversations: formatted,
                 pagination: {
                     currentPage: page,
                     totalPages: Math.ceil(total / limit),

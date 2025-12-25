@@ -153,3 +153,9 @@ Frontend will start on: `http://localhost:3000`
 
 - Keep `.env` files out of git. Add `.env.example` files if you want to share required variables without secrets.
 - If you change the backend port, update `REACT_APP_BASE_URL` accordingly.
+
+
+
+https://github.com/user-attachments/assets/99852880-f077-4761-aee6-cff537bb02b8
+
+

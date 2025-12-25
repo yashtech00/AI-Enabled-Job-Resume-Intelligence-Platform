@@ -10,7 +10,7 @@ import UploadResume from "./pages/Resumes/Uploadresume";
 import ResumeChat from "./pages/Chat/ResumeChat";
 import JobDetails from "./pages/Jobs/jobDetails";
 import MatchResult from "./pages/Matching/MatchResult";
-import NotFound from "./pages/NotFound";
+import NotFound from "./api/NotFound";
 
 // Layout (optional but recommended)
 import Layout from "./components/layout/Layout";

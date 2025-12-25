@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { analyzeResume, deleteMatch, getMatchesByJob, rankResumesForJob } from "../../api/match.api";
+import {  deleteMatch, getMatchesByJob, rankResumesForJob } from "../../api/match.api";
 import { downloadResume } from "../../api/resume.api";
 
 export const MatchResult = () => {
@@ -17,7 +17,7 @@ export const MatchResult = () => {
   const [limit, setLimit] = useState(10);
 
   const [rankLimit, setRankLimit] = useState(10);
-  const [resumeIdToAnalyze, setResumeIdToAnalyze] = useState("");
+
 
   const [rankSummary, setRankSummary] = useState(null);
   const [rankedCandidates, setRankedCandidates] = useState([]);
@@ -120,28 +120,6 @@ export const MatchResult = () => {
       await fetchMatches();
     } catch (e) {
       setError("Failed to rank resumes");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAnalyze = async (e) => {
-    e?.preventDefault?.();
-    if (!jobId) return;
-    if (!resumeIdToAnalyze.trim()) return;
-
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await analyzeResume({ resumeId: resumeIdToAnalyze.trim(), jobId });
-      if (data?.success === false) {
-        setError(data?.message || "Failed to analyze resume");
-        return;
-      }
-      setResumeIdToAnalyze("");
-      await fetchMatches();
-    } catch (e2) {
-      setError("Failed to analyze resume");
     } finally {
       setLoading(false);
     }

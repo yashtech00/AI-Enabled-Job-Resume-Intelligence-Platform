@@ -32,20 +32,20 @@ const Navbar = () => {
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-8">
           <Link to="/" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">Home</Link>
-          <Link to="/jobs" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">Find Jobs</Link>
-          <Link to="/resumes" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">Talent Pool</Link>
+          <Link to="/jobs" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">Manage Jobs</Link>
+          <Link to="/resumes" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">View Resumes</Link>
         </div>
 
         {/* Buttons */}
         <div className="hidden md:flex items-center gap-4">
-          <Link to="/jobs">
-            <button className="px-5 py-2.5 text-blue-600 font-semibold hover:bg-blue-50 rounded-full transition-colors">
-              Jobs
+          <Link to="/jobs/create">
+            <button className="px-5 py-2.5 text-blue-600 font-semibold hover:bg-blue-50 rounded-full transition-colors border border-transparent hover:border-blue-100">
+              Create Job
             </button>
           </Link>
-          <Link to="/resumes">
+          <Link to="/resumes/upload">
             <button className="px-5 py-2.5 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 transition-all shadow-lg hover:shadow-orange-500/30">
-              Resumes
+              Upload Resumes
             </button>
           </Link>
         </div>
@@ -67,14 +67,14 @@ const Navbar = () => {
           >
             <div className="flex flex-col p-6 gap-4">
               <Link to="/" className="text-gray-600 font-medium" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-              <Link to="/jobs" className="text-gray-600 font-medium" onClick={() => setMobileMenuOpen(false)}>Find Jobs</Link>
-              <Link to="/resumes" className="text-gray-600 font-medium" onClick={() => setMobileMenuOpen(false)}>Talent Pool</Link>
+              <Link to="/jobs" className="text-gray-600 font-medium" onClick={() => setMobileMenuOpen(false)}>Manage Jobs</Link>
+              <Link to="/resumes" className="text-gray-600 font-medium" onClick={() => setMobileMenuOpen(false)}>View Resumes</Link>
               <hr />
-              <Link to="/jobs" onClick={() => setMobileMenuOpen(false)}>
-                <button className="w-full py-3 text-blue-600 font-bold border border-blue-100 rounded-lg">Jobs</button>
+              <Link to="/jobs/create" onClick={() => setMobileMenuOpen(false)}>
+                <button className="w-full py-3 text-blue-600 font-bold border border-blue-100 rounded-lg">Create Job</button>
               </Link>
-              <Link to="/resumes" onClick={() => setMobileMenuOpen(false)}>
-                <button className="w-full py-3 bg-blue-600 text-white font-bold rounded-lg shadow-lg">Resumes</button>
+              <Link to="/resumes/upload" onClick={() => setMobileMenuOpen(false)}>
+                <button className="w-full py-3 bg-blue-600 text-white font-bold rounded-lg shadow-lg">Upload Resumes</button>
               </Link>
             </div>
           </motion.div>

@@ -27,33 +27,33 @@ const Hero = () => {
                     transition={{ duration: 0.8, ease: "easeOut" }}
                 >
                     <span className="inline-block px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 font-semibold text-sm mb-6 border border-blue-100">
-                        🚀 AI-Powered Career Growth
+                        🚀 AI-Powered Recruitment Intelligence
                     </span>
                     <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 tracking-tight mb-8 leading-[1.1]">
-                        Craft Your Perfect <br className="hidden md:block" />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Resume</span> with <span className="text-orange-500">Intelligence</span>
+                        Find Your <span className="text-orange-500">Top 10 Candidates</span> <br className="hidden md:block" />
+                        in Seconds with <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">AI Chat</span>
                     </h1>
                     <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-                        Stand out from the crowd with our advanced AI algorithms. Build, analyze, and optimize your resume to land your dream job 10x faster.
+                        Create jobs, upload resumes in bulk, and let our AI rank the top matches based on skills. Chat directly with resumes to screen candidates effortlessly.
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <Link to="/resumes/upload">
+                        <Link to="/jobs">
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 className="px-8 py-4 bg-gray-900 text-white text-lg font-bold rounded-full shadow-xl hover:bg-black transition-all flex items-center gap-2"
                             >
-                                Build My Resume <ArrowRightIcon />
+                                Post a Job <ArrowRightIcon />
                             </motion.button>
                         </Link>
-                        <Link to="/jobs">
+                        <Link to="/resumes/upload">
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 className="px-8 py-4 bg-white text-gray-900 text-lg font-bold rounded-full border border-gray-200 shadow-sm hover:border-gray-300 transition-all"
                             >
-                                Find Jobs
+                                Upload Resumes
                             </motion.button>
                         </Link>
                     </div>
@@ -66,19 +66,13 @@ const Hero = () => {
                     transition={{ duration: 1, delay: 0.3 }}
                     className="mt-20 relative mx-auto max-w-5xl rounded-2xl bg-white p-2 shadow-2xl border border-gray-200/60"
                 >
-                    <div className="rounded-xl overflow-hidden bg-gray-100 aspect-video flex items-center justify-center relative group">
-                        <div className="absolute inset-0 bg-gradient-to-tr from-gray-100 to-gray-200 opacity-50"></div>
-                        <div className="flex flex-col gap-4 w-3/4 opacity-60">
-                            <div className="h-8 bg-white rounded-lg w-full shadow-sm"></div>
-                            <div className="flex gap-4">
-                                <div className="h-40 bg-white rounded-lg w-1/3 shadow-sm"></div>
-                                <div className="h-40 bg-white rounded-lg w-2/3 shadow-sm"></div>
-                            </div>
-                            <div className="h-20 bg-white rounded-lg w-full shadow-sm"></div>
-                        </div>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="px-6 py-3 bg-white/90 backdrop-blur rounded-lg shadow-lg font-semibold text-gray-500">AI-Resume Preview</span>
-                        </div>
+                    <div className="rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center relative group">
+                        <img
+                            src="/image.png"
+                            alt="AI-Resume Dashboard Preview"
+                            className="w-full h-auto object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
                     </div>
                 </motion.div>
             </div>
@@ -131,21 +125,21 @@ const Features = () => {
 
                 <div className="grid md:grid-cols-3 gap-8">
                     <FeatureCard
-                        title="AI-Powered Writing"
-                        description="Let our AI assist you in writing compelling bullet points that highlight your achievements effectively."
-                        icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>}
+                        title="Top 10 Candidate Matching"
+                        description="Automatically scan all resumes and get a ranked list of the top 10 candidates based on matched vs. missing skills for the specific job."
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>}
                         delay={0.1}
                     />
                     <FeatureCard
-                        title="ATS Optimization"
-                        description="Ensure your resume passes through Applicant Tracking Systems with our intelligent formatting and keyword optimization."
-                        icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>}
+                        title="Bulk Resume Processing"
+                        description="Upload hundreds of resumes at once. Our system processes them in parallel to give you instant results without the manual waiting."
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>}
                         delay={0.2}
                     />
                     <FeatureCard
-                        title="Real-time Analytics"
-                        description="Track how typically recruiters might view your resume and get actionable insights to improve it."
-                        icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>}
+                        title="AI Resume Chat"
+                        description="Have a conversation with any resume. Ask the AI chatbot specific questions about a candidate's experience to screen them instantly."
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>}
                         delay={0.3}
                     />
                 </div>
@@ -168,18 +162,18 @@ const HowItWorks = () => (
 
                 <div className="text-center bg-white md:bg-transparent p-6 rounded-2xl shadow-sm md:shadow-none">
                     <div className="w-24 h-24 mx-auto bg-white rounded-full border-4 border-blue-50 flex items-center justify-center text-3xl font-bold text-blue-600 mb-6 relative z-10">1</div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">Upload Resume</h3>
-                    <p className="text-gray-600">Drag and drop your existing resume or start from scratch using our builder.</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">Create Job & Upload</h3>
+                    <p className="text-gray-600">Input your job description and bulk upload potential candidate resumes.</p>
                 </div>
                 <div className="text-center bg-white md:bg-transparent p-6 rounded-2xl shadow-sm md:shadow-none">
                     <div className="w-24 h-24 mx-auto bg-white rounded-full border-4 border-orange-50 flex items-center justify-center text-3xl font-bold text-orange-500 mb-6 relative z-10">2</div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">AI Analysis</h3>
-                    <p className="text-gray-600">Our advanced algorithms analyze your profile against job descriptions.</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">Get Top 10 Ranked Needs</h3>
+                    <p className="text-gray-600">AI automatically ranks the top 10 candidates and highlights matched vs missing skills.</p>
                 </div>
                 <div className="text-center bg-white md:bg-transparent p-6 rounded-2xl shadow-sm md:shadow-none">
                     <div className="w-24 h-24 mx-auto bg-white rounded-full border-4 border-blue-50 flex items-center justify-center text-3xl font-bold text-blue-600 mb-6 relative z-10">3</div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">Get Matched</h3>
-                    <p className="text-gray-600">Receive accurate match scores and tips to land the interview.</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">Chat with Candidates</h3>
+                    <p className="text-gray-600">Use the AI Chatbot to ask deeper questions and screen specific resumes.</p>
                 </div>
             </div>
         </div>
@@ -191,20 +185,20 @@ const Stats = () => (
         <div className="mx-auto w-full max-w-7xl px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                 <div>
-                    <div className="text-4xl md:text-5xl font-bold text-blue-500 mb-2">10k+</div>
-                    <div className="text-gray-400">Resumes Optimized</div>
+                    <div className="text-4xl md:text-5xl font-bold text-blue-500 mb-2">10</div>
+                    <div className="text-gray-400">Top Candidates Ranked</div>
                 </div>
                 <div>
-                    <div className="text-4xl md:text-5xl font-bold text-orange-500 mb-2">95%</div>
-                    <div className="text-gray-400">Success Rate</div>
+                    <div className="text-4xl md:text-5xl font-bold text-orange-500 mb-2">Bulk</div>
+                    <div className="text-gray-400">Multi-Upload Support</div>
                 </div>
                 <div>
-                    <div className="text-4xl md:text-5xl font-bold text-blue-500 mb-2">50+</div>
-                    <div className="text-gray-400">Partner Companies</div>
+                    <div className="text-4xl md:text-5xl font-bold text-blue-500 mb-2">AI</div>
+                    <div className="text-gray-400">Chat Assistant</div>
                 </div>
                 <div>
                     <div className="text-4xl md:text-5xl font-bold text-orange-500 mb-2">24/7</div>
-                    <div className="text-gray-400">AI Availability</div>
+                    <div className="text-gray-400">Automated Screening</div>
                 </div>
             </div>
         </div>
@@ -215,28 +209,28 @@ const Testimonials = () => (
     <section id="testimonials" className="py-24 bg-white">
         <div className="mx-auto w-full max-w-7xl px-6">
             <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">Success Stories</h2>
-                <p className="text-xl text-gray-600 max-w-2xl mx-auto">Hear from people who transformed their careers.</p>
+                <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">Recruiter Success Stories</h2>
+                <p className="text-xl text-gray-600 max-w-2xl mx-auto">Hear from HR professionals who streamlined their process.</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
                 {[
                     {
                         name: "Sarah Jenkins",
-                        role: "Frontend Developer",
-                        text: "I was getting no callbacks until I used AI-Resume. The optimization tips were a game changer.",
+                        role: "HR Lead",
+                        text: "I used to spend days reading resumes. Now I just find the top 10 matches instantly and chat with the AI to verify details.",
                         bg: "bg-blue-50"
                     },
                     {
                         name: "Michael Chen",
-                        role: "Product Manager",
-                        text: "The job matching score helped me tailor my resume for each application perfectly.",
+                        role: "Tech Recruiter",
+                        text: "The skills gap analysis is brilliant. Seeing exactly what skills are missing helps me make decisions in seconds.",
                         bg: "bg-orange-50"
                     },
                     {
                         name: "Emily Davis",
-                        role: "UX Designer",
-                        text: "So easy to use and the design templates are beautiful. Highly recommended!",
+                        role: "Talent Acquisition",
+                        text: "Bulk uploading works perfectly. I uploaded 50 resumes and had my ranked list in under a minute.",
                         bg: "bg-blue-50"
                     }
                 ].map((t, i) => (
@@ -265,12 +259,12 @@ const Cta = () => (
             <div className="rounded-3xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-12 text-center shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
 
-                <h2 className="text-3xl md:text-5xl font-bold mb-6 relative z-10">Ready to boost your career?</h2>
-                <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto relative z-10">Join thousands of professionals who have successfully landed their dream jobs using our platform.</p>
+                <h2 className="text-3xl md:text-5xl font-bold mb-6 relative z-10">Start Smart Hiring Today</h2>
+                <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto relative z-10">Create your first job, upload your candidate pool, and find your top 10 matches instantly.</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
-                    <Link to="/resumes/upload">
+                    <Link to="/jobs">
                         <button className="px-8 py-4 bg-white text-blue-600 text-lg font-bold rounded-full shadow-lg hover:bg-gray-100 transition-all">
-                            Get Started Now
+                            Post a Job
                         </button>
                     </Link>
                 </div>
@@ -288,14 +282,14 @@ const Footer = () => (
                     <span>Resume<span className="text-orange-500">Intelli</span></span>
                 </div>
                 <p className="text-gray-400 max-w-sm">
-                    Empowering job seekers with the best tools to build professional resumes and land their dream jobs.
+                    Empowering recruiters with AI-driven screening, skills matching, and automated candidate conversations.
                 </p>
             </div>
             <div>
                 <h4 className="font-bold text-lg mb-4">Product</h4>
                 <ul className="space-y-2 text-gray-400">
-                    <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Templates</a></li>
+                    <li><Link to="/jobs" className="hover:text-white transition-colors">Jobs</Link></li>
+                    <li><Link to="/resumes" className="hover:text-white transition-colors">Resumes</Link></li>
                     <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
                 </ul>
             </div>

@@ -7,7 +7,7 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 export const extractSkills = async (text) => {
     try {
         if (!text || text.trim().length === 0) {
-            console.warn("⚠️ Empty text provided for skill extraction");
+            console.warn(" Empty text provided for skill extraction");
             return [];
         }
 
@@ -65,12 +65,12 @@ Skills (comma-separated only):
             return skills.find(skill => skill.toLowerCase() === s) || s;
         });
 
-        console.log(`✅ Extracted ${uniqueSkills.length} skills using Groq`);
+        console.log(` Extracted ${uniqueSkills.length} skills using Groq`);
         
         return uniqueSkills;
 
     } catch (error) {
-        console.error("❌ Skill extraction error:", error.message);
+        console.error(" Skill extraction error:", error.message);
         
         // Fallback: Use keyword matching
         return extractSkillsFallback(text);
@@ -79,7 +79,7 @@ Skills (comma-separated only):
 
 
 const extractSkillsFallback = (text) => {
-    console.log("⚠️ Using fallback skill extraction");
+    console.log(" Using fallback skill extraction");
     
     const commonSkills = [
         // Programming Languages
@@ -115,7 +115,7 @@ const extractSkillsFallback = (text) => {
         lowerText.includes(skill.toLowerCase())
     );
 
-    console.log(`✅ Fallback found ${found.length} skills`);
+    console.log(` Fallback found ${found.length} skills`);
     return found.slice(0, 30);
 };
 
@@ -173,12 +173,12 @@ JSON:
 
         const candidateInfo = JSON.parse(jsonStr);
 
-        console.log(`✅ Extracted candidate info: ${candidateInfo.name}`);
+        console.log(` Extracted candidate info: ${candidateInfo.name}`);
         
         return candidateInfo;
 
     } catch (error) {
-        console.error("❌ Candidate info extraction error:", error.message);
+        console.error("Candidate info extraction error:", error.message);
         
         // Return default structure
         return {
@@ -195,47 +195,3 @@ JSON:
     }
 };
 
-export const standardizeSkills = async (skills) => {
-    try {
-        if (!skills || skills.length === 0) {
-            return [];
-        }
-
-        const promptTemplate = PromptTemplate.fromTemplate(`
-Standardize these skill names to industry standard format:
-
-Examples:
-- "ReactJS", "React.js" → "React"
-- "NodeJS", "Node" → "Node.js"  
-- "Mongodb" → "MongoDB"
-- "Javascript" → "JavaScript"
-- "Postgres" → "PostgreSQL"
-
-Skills to standardize:
-{skills}
-
-Return ONLY comma-separated standardized names:
-        `);
-
-        const chain = promptTemplate
-            .pipe(skillExtractionLLM)
-            .pipe(new StringOutputParser());
-
-        const response = await chain.invoke({ 
-            skills: skills.join(', ') 
-        });
-
-        const standardized = response
-            .split(',')
-            .map(skill => skill.trim())
-            .filter(skill => skill.length > 0);
-
-        console.log(`✅ Standardized ${standardized.length} skills`);
-        
-        return standardized;
-
-    } catch (error) {
-        console.error("❌ Skill standardization error:", error.message);
-        return skills; // Return original if fails
-    }
-};

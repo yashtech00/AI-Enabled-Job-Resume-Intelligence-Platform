@@ -102,16 +102,3 @@ export const generateConversationSummary = (messages) => {
 };
 
 
-export const wasTopicDiscussed = (memoryContext, topic) => {
-    try {
-        if (!memoryContext || !memoryContext.discussedTopics) {
-            return false;
-        }
-
-        return memoryContext.discussedTopics.includes(topic.toLowerCase());
-
-    } catch (error) {
-        console.error('Check topic error:', error);
-        return false;
-    }
-};

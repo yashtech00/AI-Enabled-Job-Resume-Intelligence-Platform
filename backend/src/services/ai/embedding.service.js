@@ -17,42 +17,16 @@ export const generateEmbedding = async (text) => {
         // Generate embedding
         const embedding = await embeddings.embedQuery(cleanedText);
 
-        console.log(`✅ Generated embedding: ${embedding.length} dimensions`);
+        console.log(` Generated embedding: ${embedding.length} dimensions`);
         
         return embedding;
 
     } catch (error) {
-        console.error('❌ Embedding generation error:', error.message);
+        console.error(' Embedding generation error:', error.message);
         
         // Return zero vector as fallback (384 dimensions for all-MiniLM-L6-v2)
-        console.log('⚠️ Returning zero vector fallback');
+        console.log(' Returning zero vector fallback');
         return new Array(384).fill(0);
-    }
-};
-
-export const generateBatchEmbeddings = async (texts) => {
-    try {
-        if (!texts || texts.length === 0) {
-            throw new Error("Texts array cannot be empty");
-        }
-
-        // Clean all texts
-        const cleanedTexts = texts.map(text => 
-            text.replace(/\s+/g, ' ').trim().substring(0, 5000)
-        );
-
-        // Generate embeddings
-        const embeddingVectors = await embeddings.embedDocuments(cleanedTexts);
-
-        console.log(`✅ Generated ${embeddingVectors.length} embeddings`);
-        
-        return embeddingVectors;
-
-    } catch (error) {
-        console.error('❌ Batch embedding error:', error.message);
-        
-        // Return zero vectors as fallback
-        return texts.map(() => new Array(384).fill(0));
     }
 };
 
@@ -82,7 +56,7 @@ export const calculateCosineSimilarity = (vec1, vec2) => {
         return dotProduct / (mag1 * mag2);
 
     } catch (error) {
-        console.error('❌ Cosine similarity error:', error.message);
+        console.error(' Cosine similarity error:', error.message);
         return 0;
     }
 };

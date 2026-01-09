@@ -17,7 +17,7 @@ export const splitTextIntoChunks = async (text, options = {}) => {
 
     const chunks = await splitter.splitText(text);
 
-    console.log(`✅ Split text into ${chunks.length} token-based chunks`);
+    console.log(` Split text into ${chunks.length} token-based chunks`);
 
     return chunks;
   } catch (error) {
@@ -40,7 +40,7 @@ export const createVectorStore = async (chunks, metadata = null) => {
             embeddings
         );
 
-        console.log(`✅ Created vector store with ${chunks.length} documents`);
+        console.log(` Created vector store with ${chunks.length} documents`);
         
         return vectorStore;
 
@@ -55,7 +55,7 @@ export const similaritySearch = async (vectorStore, query, k = 3) => {
     try {
         const results = await vectorStore.similaritySearch(query, k);
         
-        console.log(`✅ Found ${results.length} similar documents`);
+        console.log(` Found ${results.length} similar documents`);
         
         return results;
 
@@ -121,7 +121,7 @@ Answer:
             question: question
         });
 
-        console.log(`✅ RAG response generated`);
+        console.log(` RAG response generated`);
         
         return response;
 
@@ -131,50 +131,3 @@ Answer:
     }
 };
 
-
-export const batchRAG = async (resumeText, questions, context = {}) => {
-    try {
-        // Create vector store once for all questions
-        const chunks = await splitTextIntoChunks(resumeText);
-        const vectorStore = await createVectorStore(chunks);
-
-        const results = await Promise.all(
-            questions.map(async (question) => {
-                const relevantDocs = await similaritySearch(vectorStore, question, 3);
-                const retrievedContext = relevantDocs
-                    .map(doc => doc.pageContent)
-                    .join("\n\n");
-
-                const promptTemplate = PromptTemplate.fromTemplate(`
-Resume Context: {retrievedContext}
-Question: {question}
-Answer concisely:
-                `);
-
-                const chain = RunnableSequence.from([
-                    promptTemplate,
-                    chatLLM,
-                    new StringOutputParser()
-                ]);
-
-                const answer = await chain.invoke({
-                    retrievedContext: retrievedContext,
-                    question: question
-                });
-
-                return {
-                    question: question,
-                    answer: answer
-                };
-            })
-        );
-
-        console.log(` Batch RAG completed for ${questions.length} questions`);
-        
-        return results;
-
-    } catch (error) {
-        console.error('Batch RAG error:', error);
-        throw new Error(`Failed to perform batch RAG: ${error.message}`);
-    }
-};

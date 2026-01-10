@@ -6,10 +6,13 @@ import {
     deleteConversation,
     getUserConversations,
     clearConversation,
- 
+
 } from "../controller/chat.controller.js";
+import { verifyToken } from "../middlewares/auth.middleware.js";
 
 const chatRouter = express.Router();
+
+chatRouter.use(verifyToken);
 
 chatRouter.post('/start-conversation', startConversation);
 chatRouter.post('/send-message', sendMessage);

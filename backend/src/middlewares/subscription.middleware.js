@@ -1,7 +1,7 @@
-import UserModel from "../models/User.model";
+import User from "../models/User.model.js";
 
 const requireActiveSubscription = async (req, res, next) => {
-    const user = await UserModel.findById(req.user.id);
+    const user = await User.findById(req.user.id);
 
     if (!user || user.subscriptionStatus !== "active") {
         return res.status(403).json({
